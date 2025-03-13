@@ -1,6 +1,7 @@
 package com.recruitrooms.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.recruitrooms.models.User;
@@ -16,13 +17,27 @@ public class SignUpService {
     private UserRepository userRepository;
 
     // Saving a user where userName and phoneNuber should be unique
-    public Mono<User> registerUser(User user) {
-    	if(!userRepository.existByUserName(user.getUsername()) && !userRepository.existByPhoneNumber(user.getPhoneNumber())) {
-    		return userRepository.save(user);
-    	}
-    	else
-    		return null;
-    }
+@Autowired
+private PasswordEncoder passwordEncoder;
+
+public Mono<User> registerUser(User user) {
+    user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt password
+    return userRepository.existsByUsername(user.getUsername())
+        .flatMap(usernameExists -> {
+            if (usernameExists) {
+                return Mono.error(new RuntimeException("Username already exists"));
+            }
+            return userRepository.existsByPhoneNumber(user.getPhoneNumber());
+        })
+        .flatMap(phoneExists -> {
+            if (phoneExists) {
+                return Mono.error(new RuntimeException("Phone number already exists"));
+            }
+            return userRepository.save(user);
+        });
+}
+
+    
 
     // Getting a user by username
     public Mono<User> getByUserName(final String username) {

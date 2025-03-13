@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 public interface UserRepository extends ReactiveMongoRepository<User, String> {
     Mono<User> findByUsername(String username); 
     Mono<User> findByPhoneNumber(String phoneNumber);
-	boolean existByUserName(String username);
-	boolean existByPhoneNumber(String phoneNumber);
+	Mono<Boolean> existsByUsername(String username);
+    Mono<Boolean> existsByPhoneNumber(String phoneNumber);
 	Flux<User> findByRole(String role);	
 }

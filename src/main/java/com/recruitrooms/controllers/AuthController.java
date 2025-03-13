@@ -15,11 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
     private LogInService logInService;
+    @Autowired
     private SignUpService signUpService;
 
     @PostMapping("/login")
@@ -28,7 +31,7 @@ public class AuthController {
     }
     
     @PostMapping("/signup")
-    public Mono signup(@RequestBody final User user) {
+    public Mono<User> signup(@RequestBody final User user) {
     	System.out.println("New user with " + user.getUsername() + " has been added to user table.");
     	return signUpService.registerUser(user);
     }
